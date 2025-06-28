@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    
+     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">📝 Notes App</a>
+            <div class="d-flex">
+                <span class="navbar-text text-white me-3">
+                    Welcome, {{ session.get('name') }}
+                </span>
+                <a href="/" class="btn btn-outline-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h2 class="mb-4">Update Note</h2>
+
+        <form method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label">Note Title</label>
+                <input type="text" id="title" name="title" class="form-control" value="{{ note.title }}" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="content" class="form-label">Note Content</label>
+                <textarea id="content" name="content" class="form-control" rows="5" required>{{ note.content }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success">Update Note</button>
+            <a href="/notes" class="btn btn-secondary ms-2">Cancel</a>
+        </form>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+</body>
+</html>
