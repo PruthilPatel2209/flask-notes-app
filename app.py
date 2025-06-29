@@ -1,7 +1,7 @@
 from flask import Flask, render_template,session, redirect,request,flash
+from werkzeug.security import generate_password_hash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
 
 app = Flask(__name__)
 app.secret_key = 'mysecretkey'
@@ -31,6 +31,35 @@ class User(db.Model) :
     def __repr__(self) -> str :
         return f" {self.id} : {self.name}"
 
+@app.route('/', methods=['GET', 'POST'])
+def signup() :
+    if request.method == 'POST' :
+        
+        name = request.form.get("name")
+        email = request.form.get("email")
+        password= request.form.get("password")
+        re_password = request.form.get("confirm_password")
+
+        if not name or not email or not password or not re_password:
+            flash('Please fill out all fields.')
+            return redirect('/signup')
+
+        if password != re_password:
+            flash('Passwords do not match!')
+            return redirect('/signup')
+
+        new_user = User(name=name, email=email, password=password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        session['user_id'] = new_user.id
+        session['name'] = new_user.name
+        
+        flash('Signup successful!')
+        return redirect('/notes')
+        
+    return render_template('signup.html')
+
 @app.route('/notes', methods=['GET', 'POST'])
 def notes() :
 
@@ -49,26 +78,6 @@ def notes() :
     allnotes = Notes.query.all()
     return render_template("notes.html", notes=allnotes)
     
-
-@app.route('/', methods=['GET', 'POST'])
-def signup() :
-    if request.method == 'POST' :
-        
-        name = request.form.get("name")
-        email = request.form.get("email")
-        password= request.form.get("password")
-        re_password = request.form.get("confirm_password")
-
-        user = User(name = name, email=email, password=password)
-        db.session.add(user)
-        db.session.commit()
-
-        if re_password == password :
-            return redirect('/notes')
-        else :
-            flash("Passwords do not match!", "danger")
-            return render_template('signup.html')
-    return render_template('signup.html')
 
 
 @app.route("/delete/<int:id>")
@@ -109,8 +118,6 @@ def login():
         flash("Invalid credentials", "danger")
 
     return render_template("login.html")
-
-
 
 if __name__ == '__main__':
     with app.app_context():
